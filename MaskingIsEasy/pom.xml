@@ -9,29 +9,19 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.maskingiseasy</groupId>
-	<artifactId>maskingiseasy-app</artifactId>
-	<version>0.0.1-SNAPSHOT</version> 
-	<packaging>jar</packaging>
+	<artifactId>maskingiseasy-app</artifactId> 
+	<version>0.0.1-SNAPSHOT</version>  
+	<packaging>jar</packaging> 
 	<name>SpringForMasking</name>
 	<description>Masking is Easy Application</description>
 
 	<properties>
 		<java.version>1.8</java.version>
+		<vaadin.version>11.0.3</vaadin.version>
 	</properties>
 
 	
-	<dependencyManagement>
-	    <dependencies>
-	        <dependency>
-	            <groupId>com.vaadin</groupId>
-	            <artifactId>vaadin-bom</artifactId>
-	            <version>${vaadin.version}</version>
-	            <type>pom</type>
-	            <scope>import</scope>
-	        </dependency>
-	    </dependencies>
-	</dependencyManagement>
-
+	
 
 	<dependencies>
 		<dependency>
@@ -58,9 +48,21 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-spring-boot-starter</artifactId>
-			<version>10.0.1</version>
+			<version>${vaadin.version}</version>
 		</dependency>
 	</dependencies>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-bom</artifactId>
+				<version>${vaadin.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<plugins>
