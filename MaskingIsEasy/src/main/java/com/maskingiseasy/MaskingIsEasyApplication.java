@@ -7,6 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class MaskingIsEasyApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MaskingIsEasyApplication.class, args);
+		SpringApplication.run(MaskingIsEasyApplication.class, args); 
 	}
 }
