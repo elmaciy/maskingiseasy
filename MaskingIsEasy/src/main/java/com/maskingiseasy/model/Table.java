@@ -123,7 +123,12 @@ public class Table {
 		this.columns = columns;
 	}
 
-
+	public boolean isMasked() {
+		for (Column column : getColumns()) {
+			if (column.getMaskingRules().size()>0) return true;
+		}
+		return false;
+	}
 	
 	
 	

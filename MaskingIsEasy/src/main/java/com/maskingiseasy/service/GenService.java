@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import com.maskingiseasy.model.Application;
 import com.maskingiseasy.model.Database;
 import com.maskingiseasy.model.DatabaseType;
 
@@ -57,12 +58,12 @@ public class GenService {
 
 	
 	
-	static public void mydebug(String logstr) {
+	public void mydebug(String logstr) {
 		logger.debug(logstr);
 	}
 	
 	//-------------------------------------------------------------------------------------
-	static public void mylog(String logstr) {
+	public void mylog(String logstr) {
 		logger.info(logstr);
 	}
 	//-------------------------------------------------------------------------------------
@@ -108,6 +109,53 @@ public class GenService {
 		ret1.add(database1);
 		ret1.add(database2);
 
+		return ret1;
+	}
+
+
+
+	public ArrayList<Application> getApplicationList() {
+		ArrayList<Application> ret1=new ArrayList<Application>();
+		
+		Application app1=new Application();
+		app1.setId(Integer.valueOf(1));
+		app1.setApplicationName("Application 1");
+		app1.setApplicationType(Application.APPLICATION_TYPE_STATIC_MASKING);
+		app1.setDatabaseType(DatabaseType.DATABASE_TYPE_ORACLE);
+		app1.setDescription("Description for app1");
+		ret1.add(app1);
+		
+		
+		Application app2=new Application();
+		app2.setId(Integer.valueOf(2));
+		app2.setApplicationName("Application 2");
+		app2.setApplicationType(Application.APPLICATION_TYPE_STATIC_MASKING);
+		app2.setDatabaseType(DatabaseType.DATABASE_TYPE_ORACLE);
+		app2.setDescription("Description for app2");
+		ret1.add(app2);
+		
+		Application app3=new Application();
+		app3.setId(Integer.valueOf(3));
+		app3.setApplicationName("Application 3");
+		app3.setApplicationType(Application.APPLICATION_TYPE_STATIC_MASKING);
+		app3.setDatabaseType(DatabaseType.DATABASE_TYPE_MSSQL);
+		app3.setDescription("Description for app2");
+		ret1.add(app3);
+		
+		
+		return ret1;
+	}
+	
+	
+	public ArrayList<Application> getApplicationList(String appType, String dbType) {
+		ArrayList<Application> all=getApplicationList();
+		ArrayList<Application> ret1=new ArrayList<Application>();
+		for (Application app : all) {
+			if (!app.getApplicationType().equals(appType)) continue;
+			if (!app.getDatabaseType().equals(dbType)) continue;
+			ret1.add(app);
+		}
+		
 		return ret1;
 	}
 

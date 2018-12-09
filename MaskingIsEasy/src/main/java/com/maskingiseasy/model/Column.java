@@ -10,7 +10,7 @@ public class Column {
 	boolean isNullable;
 	boolean isPk;
 	
-	String descriptipn;
+	String description;
 	
 	 
 	ArrayList<MaskingRule> maskingRules=new ArrayList<MaskingRule>();
@@ -77,13 +77,13 @@ public class Column {
 	}
 
 
-	public String getDescriptipn() {
-		return descriptipn;
+	public String getDescription() {
+		return description;
 	}
 
 
-	public void setDescriptipn(String descriptipn) {
-		this.descriptipn = descriptipn;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 

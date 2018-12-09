@@ -31,7 +31,7 @@ public class MaskingProfile {
 	String fixedValue;
 	
 	
-	Integer maskScrambleType;	
+	String maskScrambleType;	
 	int maskScrambleX;
 	int maskScrambleY;
 	boolean keepSpaces;
@@ -74,10 +74,10 @@ public class MaskingProfile {
 	public void setFixedValue(String fixedValue) {
 		this.fixedValue = fixedValue;
 	}
-	public Integer getMaskScrambleType() {
+	public String getMaskScrambleType() {
 		return maskScrambleType;
 	}
-	public void setMaskScrambleType(Integer maskScrambleType) {
+	public void setMaskScrambleType(String maskScrambleType) {
 		this.maskScrambleType = maskScrambleType;
 	}
 	public int getMaskScrambleX() {
@@ -175,6 +175,15 @@ public class MaskingProfile {
 	}
 	public void setDateMaskSecondDiff(int dateMaskSecondDiff) {
 		this.dateMaskSecondDiff = dateMaskSecondDiff;
+	}
+	public static MaskingProfile buildHideProfile(int hideAfter, String maskChar, boolean keepSpaces) {
+		MaskingProfile profile=new MaskingProfile();
+		profile.setProfileType(MaskingProfile.MASKING_PROFILE_TYPE_HIDING);
+		profile.setMaskScrambleType(MaskingProfile.MASK_SCRAMBLE_TYPE_EXCEPT_FIRST_X);
+		profile.setMaskScrambleCharacters(maskChar);
+		profile.setMaskScrambleX(hideAfter);
+		profile.setKeepSpaces(keepSpaces);
+		return profile;
 	}
 
 	

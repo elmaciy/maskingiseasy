@@ -8,6 +8,7 @@ import com.maskingiseasy.service.GenService;
 public class DatabaseType {
 	
 	public static final String DATABASE_TYPE_ORACLE="ORCL";
+	public static final String DATABASE_TYPE_MSSQL="MSSQL";
 	
 	String name;
 	boolean hasServer;
@@ -191,6 +192,90 @@ public class DatabaseType {
 			
 		}
 		
+	}
+
+
+
+
+
+	public static ArrayList<Column> getColumnList(GenService genService, Database database, Table table) {
+		ArrayList<Column> ret1=new ArrayList<Column>();
+		
+		if (!database.isValid()) return ret1;
+		if (database.getConn()==null) return ret1;
+		if (database.getDatabaseType().getName().equals(DATABASE_TYPE_ORACLE)) return getColumnListOracle(genService, database , table);
+		
+		return ret1;
+	}
+
+
+
+
+
+	private static ArrayList<Column> getColumnListOracle(GenService genService, Database database, Table table) {
+		ArrayList<Column> ret1=new ArrayList<Column>();
+		
+		
+		ArrayList<String[]> bindlist=new ArrayList<String[]>();
+		bindlist.add(new String[] {"STRING", table.getSchema().getSchemaName()});
+		bindlist.add(new String[] {"STRING", table.getTableName()});
+		
+		String sql="\r\n" + 
+				"SELECT \r\n" + 
+				"cols.column_name\r\n" + 
+				"FROM \r\n" + 
+				"all_constraints cons, all_cons_columns cols\r\n" + 
+				"WHERE \r\n" + 
+				"cols.owner = ? \r\n" + 
+				"and cols.table_name = ? \r\n" + 
+				"AND cons.constraint_type = 'P'\r\n" + 
+				"AND cons.constraint_name = cols.constraint_name\r\n" + 
+				"AND cons.owner = cols.owner";
+		
+		ArrayList<String[]> arrPk=CommonLib.getDbArray(database.getConn(), sql, Integer.MAX_VALUE, bindlist, 0, null, null);
+		
+		ArrayList<String> arrPkColList=new ArrayList<String>();
+		
+		for (String[] sarr : arrPk) if (arrPkColList.indexOf(sarr[0])==-1) arrPkColList.add(sarr[0]);
+		
+		sql="\r\n" + 
+				"select \r\n" + 
+				"column_id, \r\n" + 
+				"column_name, \r\n" + 
+				"data_type,\r\n" + 
+				"data_length, \r\n" + 
+				"char_length, \r\n" + 
+				"nullable \r\n" + 
+				"from dba_tab_columns \r\n" + 
+				"where \r\n" + 
+				"owner=? \r\n" + 
+				"and table_name=? \r\n" + 
+				"order by column_id";
+		
+		
+		ArrayList<String[]> arr=CommonLib.getDbArray(database.getConn(), sql, Integer.MAX_VALUE, bindlist, 0, null, null);
+		
+		for (String[] sarr : arr) {
+			int c=0;
+			String column_id=sarr[c++];
+			String column_name=sarr[c++];
+			String data_type=sarr[c++];
+			String data_length=sarr[c++];
+			String char_length=sarr[c++];
+			String nullable=sarr[c++];
+			
+			Column column=new Column();
+			column.setColumnName(column_name);
+			column.setId(Integer.valueOf(column_id));
+			column.setColumnType(data_type);
+			column.setColumnSize(Integer.max(Integer.valueOf(data_length), Integer.valueOf(char_length)));
+			column.setNullable(nullable.equals("Y"));
+			column.setPk(arrPkColList.indexOf(column_name)>-1);
+			
+			ret1.add(column);
+
+		}
+		return ret1;
 	}
 	
 	
