@@ -1,42 +1,37 @@
 package com.maskingiseasy.ui;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.maskingiseasy.model.Catalog;
+import com.maskingiseasy.libs.CommonLib;
 import com.maskingiseasy.model.Database;
-import com.maskingiseasy.model.Schema;
+import com.maskingiseasy.model.DatabaseType;
 import com.maskingiseasy.model.Table;
-import com.maskingiseasy.service.GeneralService;
-import com.vaadin.flow.component.checkbox.CheckboxGroup;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.Notification.Position;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.splitlayout.SplitLayout;
-import com.vaadin.flow.component.splitlayout.SplitLayout.Orientation;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.spring.annotation.SpringComponent;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
+import com.maskingiseasy.service.GenService;
+import com.vaadin.spring.annotation.SpringComponent;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
+import com.vaadin.ui.components.grid.HeaderRow;
 
 
-@Route("designer")
-@Theme(value = Lumo.class, variant = Lumo.DARK)
-@PageTitle("Masking is easy")
 @SpringComponent
-public class Designer extends VerticalLayout   {
+public class Designer extends Window   {
 
-	//@Autowired(required=true)
-	//GeneralService generalService;
+	
+	GenService genService;
 
 	private static final long serialVersionUID = 1L;
+	
+	VerticalLayout root=new VerticalLayout();
+
 	
 	HorizontalLayout top=new HorizontalLayout();
 	VerticalLayout left=new VerticalLayout();
@@ -45,18 +40,32 @@ public class Designer extends VerticalLayout   {
 
 
 	
-	public Designer(@Autowired GeneralService generalService) {
+	public Designer(GenService generalService) {
 		
+		super();
 		
-		
-		drawScreen(generalService);
+		this.genService=generalService;
 
-		SplitLayout splitter=new SplitLayout();
-		splitter.setOrientation(Orientation.HORIZONTAL);
-		splitter.addToPrimary(left);
-		splitter.addToSecondary(main);
+		setModal(true);
+		setWidth(100, Unit.PERCENTAGE);
+		setHeight(100, Unit.PERCENTAGE);
+		setResizable(false);
+		setClosable(true);
+		
+		
+		
+		//generalService.makeSureWorkingDirectoriesExists();
+		
+		drawScreen();
+		
+		HorizontalSplitPanel splitter=new HorizontalSplitPanel();
+		splitter.setFirstComponent(left);
+		splitter.setSecondComponent(main);
 		splitter.setWidth("100%");
-		splitter.setSplitterPosition(15);
+		splitter.setSplitPosition(15);
+		splitter.setMinSplitPosition(5, Unit.PERCENTAGE);
+		splitter.setMaxSplitPosition(50, Unit.PERCENTAGE);
+		
 
 		
 		top.setHeight("5%");
@@ -64,23 +73,28 @@ public class Designer extends VerticalLayout   {
 		bottom.setHeight("10%");
 
 		
-		add(top , splitter , bottom);
-		setSizeFull();
+		root.addComponents(top , splitter , bottom);
+		root.setSizeFull();
 		
+		root.setExpandRatio(top, 1);
+		root.setExpandRatio(splitter, 10);
+		root.setExpandRatio(bottom, 1);
 		
-		setFlexGrow(2, top);
-		setFlexGrow(10, splitter);
-		setFlexGrow(1, bottom);
+		root.setSpacing(false);
+		root.setMargin(false);
+		
+		setContent(root);
+		
 		
 
 	}
 
 
-	private void drawScreen(GeneralService generalService) {
-		drawTop(generalService);
-		drawLeft(generalService);
-		drawMain(generalService);
-		drawBottom(generalService);
+	private void drawScreen() {
+		drawTop();
+		drawLeft();
+		drawMain();
+		drawBottom();
 		
 	}
 
@@ -88,132 +102,147 @@ public class Designer extends VerticalLayout   {
 	
 	
 	
-	private void drawTop(GeneralService generalService) {
-		Label lblWorkingDir=new Label("working @  :");
-		lblWorkingDir.setText("Working @"+generalService.getWorkingDir());
-		
-		top.add(lblWorkingDir);
+	private void drawTop() {
+		Label lblWorkingDir=new Label("Working @"+genService.getWorkingDir());
+		top.addComponent(lblWorkingDir);
 		
 	}
 	
 	ComboBox<Database> comboForDatabase=new ComboBox<Database>("Database");
-	ComboBox<Catalog> comboForCatalog=new ComboBox<Catalog>("Catalog");
-	ComboBox<Schema> comboForSchema=new ComboBox<Schema>("Schema/Owner");
-	TextField filterForTable=new TextField();
-	CheckboxGroup<Table> listOfTablesInDatabase=new CheckboxGroup<Table>();
+
+	Grid<Table> gridForTableInDatabase=new Grid<>(Table.class);
 	
-	private void drawLeft(GeneralService generalService) {
+	
+	private void drawLeft() {
 		
-		ArrayList<Database> databaseList=generalService.getAvailableDatabaseList();
+		ArrayList<Database> databaseList=genService.getAvailableDatabaseList();
 		comboForDatabase.setItems(databaseList);
-		comboForDatabase.setItemLabelGenerator(p->p.getDatabaseType().getName()+" : " + p.getDatabaseName());
+		comboForDatabase.setItemCaptionGenerator(p->p.getDatabaseType().getName()+" : " + p.getDatabaseName());
 		comboForDatabase.addValueChangeListener(e-> {
-			setCurrentDatabase(generalService, e.getValue());
+			setCurrentDatabase(e.getValue());
 
 		});
 		
 		
 		
 		
+		
 		comboForDatabase.setWidth("100%");
-		comboForCatalog.setWidth("100%");
-		comboForSchema.setWidth("100%");
-		filterForTable.setWidth("100%");
-		listOfTablesInDatabase.setWidth("100%");
+		
+		
+		gridForTableInDatabase.setWidth("100%");
+		gridForTableInDatabase.setSizeFull();
 		
 		
 		
+		gridForTableInDatabase.setCaption("List of Table(s)");
+		gridForTableInDatabase.removeAllColumns();
+		gridForTableInDatabase.addColumn(p->p.getTableName()).setHidable(true).setHidable(false).setId("table").setCaption("Table");
+		gridForTableInDatabase.addColumn(p->(p.getSchema()!=null) ? p.getSchema().getSchemaName() : "" ).setHidable(true).setHidable(false).setId("schema").setCaption("Schema");
+		gridForTableInDatabase.addColumn(p->(p.getSchema()!=null && p.getSchema().getCatalog()!=null) ? p.getSchema().getCatalog().getCatalogName() : "" ).setHidable(true).setHidable(false).setId("catalog").setCaption("Catalog");
+		gridForTableInDatabase.addColumn(p->p.getObjectType().substring(0, 1)).setHidable(true).setHidable(false).setId("objectType").setCaption("Type");
+
+		gridForTableInDatabase.setHeightByRows(10);
 		
-		listOfTablesInDatabase.setLabel("List of Table(s)");
-		filterForTable.setPlaceholder("Enter filter...");
-		filterForTable.setPrefixComponent(VaadinIcon.FILTER.create());
+		gridForTableInDatabase.setSelectionMode(SelectionMode.SINGLE);
 		
+		HeaderRow headerRow=gridForTableInDatabase.addHeaderRowAt(1);
+		headerRow.getCell("table").setComponent(CommonLib.makeFilterFieldWithEvent(event->{applyFilterForDatabaseTables();}));
+		headerRow.getCell("schema").setComponent(CommonLib.makeFilterFieldWithEvent(event->{applyFilterForDatabaseTables();}));
+		headerRow.getCell("catalog").setComponent(CommonLib.makeFilterFieldWithEvent(event->{applyFilterForDatabaseTables();}));
+
+
 		
-		VerticalLayout formFilter=new VerticalLayout(comboForDatabase, comboForCatalog, comboForSchema, filterForTable);
-		formFilter.setWidth("100%");
-		formFilter.setHeight(null);
-		formFilter.setSpacing(false);
-		formFilter.setPadding(false);
-		formFilter.setMargin(false);
+		VerticalLayout formLeft=new VerticalLayout(comboForDatabase,gridForTableInDatabase);
 		
-		VerticalLayout formLeft=new VerticalLayout(formFilter,listOfTablesInDatabase);
+
+
 		
-		
-		
-		
-		formLeft.setFlexGrow(1, formFilter);
-		formLeft.setFlexGrow(10, listOfTablesInDatabase);
 		formLeft.setSpacing(false);
-		formLeft.setPadding(false);
 		formLeft.setMargin(false);
 		
-		left.add(formLeft);
+		left.setSpacing(false);
+		left.setMargin(false);
+		left.setHeight(100, Unit.PERCENTAGE);
+		
+		left.addComponent(formLeft);
 		
 	}
 	
 	
-	private void setCurrentDatabase(GeneralService generalService, Database newDatabase) {
-		comboForCatalog.clear();
-		comboForSchema.clear();
-		filterForTable.clear();
+	private void applyFilterForDatabaseTables() {
+		String fTable=CommonLib.getFilterFieldByCellId(gridForTableInDatabase, "table").toUpperCase(Locale.ENGLISH).trim();
+		String fSchema=CommonLib.getFilterFieldByCellId(gridForTableInDatabase, "schema").toUpperCase(Locale.ENGLISH).trim();
+		String fCatalog=CommonLib.getFilterFieldByCellId(gridForTableInDatabase, "catalog").toUpperCase(Locale.ENGLISH).trim();
 		
-		if (newDatabase==null) return;
+		ArrayList<Table> filtered=new ArrayList<Table>();
 		
-		StringBuilder sbErr=new StringBuilder();
+		if (comboForDatabase.getValue()==null) {
+			gridForTableInDatabase.setItems(filtered);
+			return;
+		}
+		
+		Database currentDatabase=comboForDatabase.getValue();
+		boolean hasSchema=currentDatabase.getDatabaseType().isHasSchema();
+		boolean hasCatalog=currentDatabase.getDatabaseType().isHasCatalog();
+		
+		for (Table table : currentDatabase.getTables()) {
+			if (fTable.length()>0 && !table.getTableName().toUpperCase(Locale.ENGLISH).contains(fTable)) continue;
+			if (fSchema.length()>0 && hasSchema && !table.getSchema().getSchemaName().toUpperCase(Locale.ENGLISH).contains(fSchema)) continue;
+			if (fCatalog.length()>0 && hasCatalog && !table.getSchema().getCatalog().getCatalogName().toUpperCase(Locale.ENGLISH).contains(fCatalog)) continue;
+			filtered.add(table);
+		}
+		
+		gridForTableInDatabase.setItems(filtered);
+		gridForTableInDatabase.setCaption("Table(s) found : "+filtered.size());
+		
+	}
+
+
+	private void setCurrentDatabase(Database newDatabase) {
+		
+		if (newDatabase==null) {
+			applyFilterForDatabaseTables();
+			return;
+		}
+		
 		newDatabase.connect();
 		
-		if (sbErr.length()>0) {
-			Notification.show("Database connection to : " + newDatabase.getDatabaseName()+" is invalid. Error : " + newDatabase.getError(), 5000, Position.TOP_START);
-			comboForDatabase.setInvalid(true);
+		if (newDatabase.isValid()==false || CommonLib.nvl(newDatabase.getError(), "").length()>0) {
+			applyFilterForDatabaseTables();
+			Notification.show("Database connection to : " + newDatabase.getDatabaseName()+" is invalid. Error : " + newDatabase.getError(), Notification.TYPE_ERROR_MESSAGE);
 			return;
 		}
 		
 		
+		newDatabase.testConnection();
 		
+		if (newDatabase.isValid()==false || newDatabase.getTables().size()==0)
+			DatabaseType.getTableList(genService, newDatabase);
+		
+		applyFilterForDatabaseTables();
 
 
-		fillCatalogList(newDatabase);
 		
-		
-		
+		gridForTableInDatabase.getColumn("catalog").setHidden(!newDatabase.getDatabaseType().isHasCatalog());
+		gridForTableInDatabase.getColumn("schema").setHidden(!newDatabase.getDatabaseType().isHasSchema());
 		
 		
 	}
 
 
-	private void fillCatalogList(Database database) {
-		ArrayList<Catalog> catalogList=new ArrayList<Catalog>();
-		
-		for (Table table : database.getTables()) {
-			
-			System.out.println("Checking table : "+table.getTableName() +" @"+table.getSchema()+"@"+table.getSchema().getCatalog());
-			if (table.getSchema().getCatalog()==null) continue;
-			if (table.getSchema().getCatalog().getCatalogName().length()==0) continue;
-			if (catalogList.indexOf(table.getSchema().getCatalog())>-1) continue;
-			
-			catalogList.add(table.getSchema().getCatalog());
-			System.out.println("Adding : "+table.getSchema().getCatalog().getCatalogName());
-		}
-		
-		if (catalogList.size()==0) {
-			Catalog emptyCatalog=new Catalog();
-			emptyCatalog.setCatalogName("*");
-			catalogList.add(emptyCatalog);
-		}
-		
-		comboForCatalog.setItems(catalogList);
-		
-	}
 
 
-	private void drawMain(GeneralService generalService) {
+
+
+	private void drawMain() {
 		// TODO Auto-generated method stub
 		
 	}
 
 
 	
-	private void drawBottom(GeneralService generalService) {
+	private void drawBottom() {
 		// TODO Auto-generated method stub
 		
 	}

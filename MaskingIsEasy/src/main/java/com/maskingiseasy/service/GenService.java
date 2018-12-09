@@ -6,28 +6,24 @@ package com.maskingiseasy.service;
 
 
 import java.io.File;
-import java.sql.Connection;
 import java.util.ArrayList;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import com.maskingiseasy.libs.CommonLib;
 import com.maskingiseasy.model.Database;
 import com.maskingiseasy.model.DatabaseType;
 
 @Service
-@Configurable
-public class GeneralService {
+public class GenService {
 	
 	@Autowired
 	Environment env;
 	
-	final static Logger logger = LogManager.getLogger(GeneralService.class);
+	final static Logger logger = LogManager.getLogger(GenService.class);
 	
 	public void makeSureWorkingDirectoriesExists() {
 		String workingDir=getWorkingDir();

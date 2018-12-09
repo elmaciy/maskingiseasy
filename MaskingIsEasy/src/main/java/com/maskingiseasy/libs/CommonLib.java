@@ -23,6 +23,15 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.vaadin.data.HasValue.ValueChangeListener;
+import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.shared.ui.ValueChangeMode;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.components.grid.HeaderRow;
+import com.vaadin.ui.themes.ValoTheme;
+
 public final class CommonLib {
 	
 	public static final NumberFormat trlFormat = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("tr-TR"));
@@ -552,7 +561,60 @@ public final class CommonLib {
 		return content.replaceAll("\\<[^>]*>","");
 	}
 
+	
+	// ---------------------------------------------------
+	static public TextField makeFilterFieldWithEvent(ValueChangeListener<String> listener) {
+		TextField field=new TextField();
+		field.addStyleName(ValoTheme.TEXTFIELD_TINY);
+		field.setValueChangeMode(ValueChangeMode.LAZY);
+		field.setWidth(100, Unit.PERCENTAGE);
+		field.addValueChangeListener(listener);
+		return field;
+	}
+	
+	public static String getFilterFieldByCellId(Grid grid, String cellId) {
+		String ret1="";
+		int headerCount=grid.getHeaderRowCount();
+		if (headerCount<2) return "";
+		try {
+			HeaderRow header=grid.getHeaderRow(1);
+			TextField tf=(TextField) header.getCell(cellId).getComponent();
+			return tf.getValue();
+		} catch (Exception e) {
+			
+		}
+		return ret1;
+	}
 
+	
+	//---------------------------------------------------------------------------------
+	public static void setStyle(UI current) {
+
+		 current.getPage().getCurrent().getStyles().add(
+                ".v-grid-column-header-content  {color: red; font-weight: bold;}"+
+                ".v-grid-column-default-header-content  {color: red; font-weight: bold;}"+
+                ".v-grid-cell  {color: black; font-weight: bold;}"+
+                ".v-select-option  {color: black; font-weight: bold;}"+
+                ".v-textfield  {color: black; font-weight: bold;}"+
+                ".v-textfield-small  {color: black; font-weight: bold;}"+
+                ".v-textfield-tiny  {color: black; font-weight: bold;}"+
+                ".v-label  {color: blue; font-weight: bold;}"+
+                ".v-label-small  {color: blue; font-weight: bold;}"+
+                ".v-label-tiny  {color: blue; font-weight: bold;}"+
+                ".v-datefield-textfield  {color: black; font-weight: bold;}"+
+                ".v-filterselect  {color: black; font-weight: bold;}"+
+                ".v-filterselect-input  {color: black; font-weight: bold;}"+
+                ".v-button  {color: green; font-weight: bold;}"+
+                ".v-button-small  {color: green; font-weight: bold;}"+
+                ".v-button-tiny  {color: green; font-weight: bold;}"+
+                ".v-caption  {font-weight: bold;}"+
+                ""
+                 
+                
+
+         );
+		 
+	}
 
 
 	

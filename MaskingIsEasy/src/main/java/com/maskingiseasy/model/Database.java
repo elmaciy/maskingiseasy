@@ -147,7 +147,7 @@ public class Database {
 	}
 	
 	
-	private boolean testConnection() {
+	public boolean testConnection() {
 		if (conn==null) return false;
 		String sql=getDatabaseType().getTestSql();
 		ArrayList<String[]> arr=CommonLib.getDbArray(conn, sql, 1, null, 5, null, null);

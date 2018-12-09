@@ -3,6 +3,7 @@ package com.maskingiseasy.model;
 import java.util.ArrayList;
 
 import com.maskingiseasy.libs.CommonLib;
+import com.maskingiseasy.service.GenService;
 
 public class DatabaseType {
 	
@@ -142,10 +143,10 @@ public class DatabaseType {
 	
 	
 	
-	public static void getTableList(Database database) {
+	public static void getTableList(GenService genService, Database database) {
 		if (!database.isValid()) return;
 		if (database.getConn()==null) return;
-		if (database.getDatabaseType().getName().equals(DATABASE_TYPE_ORACLE)) getTableListOracle(database);
+		if (database.getDatabaseType().getName().equals(DATABASE_TYPE_ORACLE)) getTableListOracle(genService, database);
 		else return;
 	}
 
@@ -153,7 +154,7 @@ public class DatabaseType {
 
 
 
-	private static void getTableListOracle(Database database) {
+	private static void getTableListOracle(GenService genService, Database database) {
 		database.getTables().clear();
 		String sql="select owner, table_name from dba_tables order by 1, 2";
 		ArrayList<String[]> arr=CommonLib.getDbArray(database.getConn(), sql, Integer.MAX_VALUE, null, 0, null, null);
@@ -161,10 +162,11 @@ public class DatabaseType {
 		
 		for (String sarr[] : arr ) {
 			String schemaName=sarr[0];
-			String tableName=sarr[2];
+			String tableName=sarr[1];
 			int id=(schemaName+"."+tableName).hashCode();
 			
-			System.out.println("Adding table : "+schemaName+"."+tableName);
+			if (id % 100 ==0)
+				genService.mylog("Adding table : "+schemaName+"."+tableName);
 			
 			
 			Table table=new Table();

@@ -2,36 +2,41 @@ package com.maskingiseasy.ui;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.maskingiseasy.service.GeneralService;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.Notification.Position;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.spring.annotation.SpringComponent;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
+import com.maskingiseasy.libs.CommonLib;
+import com.maskingiseasy.service.GenService;
+import com.vaadin.annotations.Theme;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.spring.annotation.SpringUI;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 
-@SpringComponent
-@Route("home")
-@PageTitle("Masking is easy")
-@Theme(value = Lumo.class, variant = Lumo.DARK)
-public class Home extends VerticalLayout   {
+@SpringUI(path="/home")
+@Theme("valo")
+public class Home extends UI   {
 
 
 	private static final long serialVersionUID = 1L;
 	
 	
 	@Autowired
-	GeneralService generalService;
+	GenService genService;
+	
+	VerticalLayout root=new VerticalLayout();
 
-	public Home() {
 
-		Button bt=new Button("selam");
-		bt.addClickListener(event-> {
-			Notification.show("clicked", 10000, Position.MIDDLE);
-		});
-		add(bt);
+	@Override
+	protected void init(VaadinRequest request) {
+		
+		Designer designer=new Designer(genService);
+		UI.getCurrent().addWindow(designer);
+
+		
+		setContent(root);
+		
+		CommonLib.setStyle(UI.getCurrent());
+			
+		
 	}
+
+	
 }
