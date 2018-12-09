@@ -16,7 +16,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 @SpringComponent
 @Route("home")
 @PageTitle("Masking is easy")
-@Theme(Lumo.class)
+@Theme(value = Lumo.class, variant = Lumo.DARK)
 public class Home extends VerticalLayout   {
 
 

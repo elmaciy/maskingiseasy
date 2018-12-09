@@ -2,11 +2,9 @@ package com.maskingiseasy.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-import com.vaadin.flow.spring.annotation.SpringComponent;
-
-@Service
+@Component
 public class ScheduledServices {
 	
 	@Autowired
@@ -14,8 +12,9 @@ public class ScheduledServices {
 
 	//-------------------------------------------------------------------------------------
 
-	@Scheduled(fixedRate=5000, initialDelay=10000)
+	@Scheduled(fixedRate=5000, initialDelay=3000)
 	public void checkProcesses() {
+		generalService.makeSureWorkingDirectoriesExists();
 		System.out.println("Checking processes...");
 	}
 	

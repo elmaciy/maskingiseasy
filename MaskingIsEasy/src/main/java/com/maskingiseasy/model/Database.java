@@ -1,6 +1,9 @@
 package com.maskingiseasy.model;
 
+import java.sql.Connection;
 import java.util.ArrayList;
+
+import com.maskingiseasy.libs.CommonLib;
 
 public class Database {
 	
@@ -18,7 +21,20 @@ public class Database {
 	String defaultDatabase;
 	
 	boolean isProduction;
+
+	Connection conn;
+	String error;
+	boolean valid;
 	
+	
+	public boolean isValid() {
+		return valid;
+	}
+
+	public void setValid(boolean valid) {
+		this.valid = valid;
+	}
+
 	ArrayList<Table> tables=new ArrayList<Table>();
 
 
@@ -98,5 +114,50 @@ public class Database {
 	
 	
 	
+	public Connection getConn() {
+		return conn;
+	}
+
+	public void setConn(Connection conn) {
+		this.conn = conn;
+	}
+
+	public String getError() {
+		return error;
+	}
+
+	public void setError(String error) {
+		this.error = error;
+	}
+
+	public void connect() {
+		String driver=getDriverName();
+		String url=getConnectionString();
+		String username=getUsername();
+		String password=getPassword();
+		Connection conn=CommonLib.getConn(driver, url, username, password);
+		
+		if (conn==null) {
+			setError("Connection is invalid");
+			return;
+		}
+		
+		this.conn=conn;
+		setValid(testConnection());
+	}
+	
+	
+	private boolean testConnection() {
+		if (conn==null) return false;
+		String sql=getDatabaseType().getTestSql();
+		ArrayList<String[]> arr=CommonLib.getDbArray(conn, sql, 1, null, 5, null, null);
+		if (arr.size()==0) return false;
+		return true;
+		
+	}
+
+	public void disconnect() {
+		CommonLib.closeConn(conn);
+	}
 	
 }

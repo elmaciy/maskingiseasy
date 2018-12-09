@@ -1,8 +1,12 @@
 package com.maskingiseasy.model;
 
+import java.util.ArrayList;
+
+import com.maskingiseasy.libs.CommonLib;
+
 public class DatabaseType {
 	
-	public static final String DATABASE_TYPE_ORACLE="ORACLE";
+	public static final String DATABASE_TYPE_ORACLE="ORCL";
 	
 	String name;
 	boolean hasServer;
@@ -11,11 +15,11 @@ public class DatabaseType {
 	String testSql;
 	String partitionCheckSql;
 	String connectionStringTemplate;
-	
-	
-	
-	
-	
+
+
+
+
+
 	public String getName() {
 		return name;
 	}
@@ -135,4 +139,57 @@ public class DatabaseType {
 		dbType.setPartitionCheckSql("select PARTITION_NAME from ALL_TAB_PARTITIONS where owner=<SCHEMA> table_name=<TABLE>");
 		return dbType;
 	}
+	
+	
+	
+	public static void getTableList(Database database) {
+		if (!database.isValid()) return;
+		if (database.getConn()==null) return;
+		if (database.getDatabaseType().getName().equals(DATABASE_TYPE_ORACLE)) getTableListOracle(database);
+		else return;
+	}
+
+
+
+
+
+	private static void getTableListOracle(Database database) {
+		database.getTables().clear();
+		String sql="select owner, table_name from dba_tables order by 1, 2";
+		ArrayList<String[]> arr=CommonLib.getDbArray(database.getConn(), sql, Integer.MAX_VALUE, null, 0, null, null);
+		if (arr.size()==0) return;
+		
+		for (String sarr[] : arr ) {
+			String schemaName=sarr[0];
+			String tableName=sarr[2];
+			int id=(schemaName+"."+tableName).hashCode();
+			
+			System.out.println("Adding table : "+schemaName+"."+tableName);
+			
+			
+			Table table=new Table();
+			table.setId(id);
+			table.setTableName(tableName);
+			table.setObjectType(Table.OBJECT_TYPE_TABLE);
+			table.setParalelismCount(1);
+			table.setParalelismFormula("1");
+			table.setServerName(null);
+			
+			
+			Catalog catalog=new Catalog();
+			catalog.setCatalogName("");
+			
+			Schema schema=new Schema();
+			schema.setSchemaName(schemaName);
+			schema.setCatalog(catalog);
+			
+			table.setSchema(schema);
+			
+			database.getTables().add(table);
+			
+		}
+		
+	}
+	
+	
 }
